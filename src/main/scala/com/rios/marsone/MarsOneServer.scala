@@ -1,17 +1,17 @@
 package com.rios.marsone
 
-import akka.actor.ActorSystem
-import akka.event.Logging
+import akka.actor.{ ActorRef, ActorSystem }
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
-
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 import scala.io.StdIn
+
 import akka.http.scaladsl.server.Directives._
-import com.lightbend.akka.http.sample.UserRoutes
-import com.rios.marsone.routes.{PlateauRoutes, RoversRoutes}
+
+import com.rios.marsone.actors.ControlCenterActor
+import com.rios.marsone.routes.{ PlateauRoutes, RoversRoutes }
 
 object MarsOneServer extends App
   with PlateauRoutes
@@ -23,6 +23,8 @@ object MarsOneServer extends App
   implicit val executionContext: ExecutionContext = system.dispatcher
 
   lazy val routes: Route = plateauRoutes ~ roverRoutes
+
+  val controlCenterActor: ActorRef = system.actorOf(ControlCenterActor.props, "controlCenterActor")
 
   val serverBindingFuture: Future[ServerBinding] =
     Http().bindAndHandle(routes, "localhost", 8080)

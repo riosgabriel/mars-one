@@ -7,7 +7,6 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.MethodDirectives.{delete, get, post}
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
-import com.lightbend.akka.http.sample.UserRoutes
 import com.rios.marsone.JsonSupport
 import com.rios.marsone.model.Plateau
 
@@ -15,7 +14,7 @@ trait PlateauRoutes extends JsonSupport {
 
   implicit def system: ActorSystem
 
-  private lazy val log = Logging(system, classOf[UserRoutes])
+  private lazy val log = Logging(system, classOf[PlateauRoutes])
 
   lazy val plateauRoutes: Route =
     pathPrefix("plateau") {
