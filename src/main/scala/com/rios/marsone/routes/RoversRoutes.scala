@@ -1,0 +1,37 @@
+package com.rios.marsone.routes
+
+import akka.actor.ActorSystem
+import akka.event.Logging
+import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.server.Directives.{pathEnd, pathPrefix, put, _}
+import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.directives.MethodDirectives.{delete, get, post}
+import akka.http.scaladsl.server.directives.RouteDirectives.complete
+import com.lightbend.akka.http.sample.UserRoutes
+import com.rios.marsone.JsonSupport
+import com.rios.marsone.model.Rover
+
+trait RoversRoutes extends JsonSupport {
+
+  implicit def system: ActorSystem
+
+  private lazy val log = Logging(system, classOf[UserRoutes])
+
+  lazy val roverRoutes: Route =
+    pathPrefix("rovers") {
+      pathEnd {
+        get {
+          complete(Rover("North", 1, 3))
+        } ~
+        post {
+          complete(StatusCodes.OK)
+        } ~
+        put {
+          complete(StatusCodes.OK)
+        } ~
+        delete {
+          complete(StatusCodes.OK)
+        }
+      }
+    }
+}
