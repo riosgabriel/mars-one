@@ -3,9 +3,7 @@ package com.rios.marsone.actors
 import akka.actor.{ Actor, Props }
 
 import com.rios.marsone.actors.ControlCenterActor.{ DeployRover, GetRovers }
-import com.rios.marsone.model.Rover
-
-final case class Rovers(rovers: Set[Rover])
+import com.rios.marsone.model.{ Rover, Rovers }
 
 object ControlCenterActor {
 
@@ -19,11 +17,15 @@ class ControlCenterActor extends Actor {
 
   var rovers = Set.empty[Rover]
 
+  // improve response
   override def receive: Receive = {
-    case DeployRover(rover) => rovers += rover
+    case DeployRover(rover) =>
+      val senderRef = sender()
+      rovers += rover
+      senderRef ! "Ok"
 
     case GetRovers =>
       val senderRef = sender()
-      senderRef ! rovers
+      senderRef ! Rovers(rovers)
   }
 }

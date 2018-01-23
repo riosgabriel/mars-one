@@ -5,7 +5,7 @@ import akka.event.Logging
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import akka.http.scaladsl.server.directives.MethodDirectives.{delete, get, post}
+import akka.http.scaladsl.server.directives.MethodDirectives.{ delete, get, post }
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import com.rios.marsone.JsonSupport
 import com.rios.marsone.model.Plateau
@@ -18,10 +18,10 @@ trait PlateauRoutes extends JsonSupport {
 
   lazy val plateauRoutes: Route =
     pathPrefix("plateau") {
-        pathEnd {
-          get {
-            complete(Plateau(5, 5))
-          } ~
+      pathEnd {
+        get {
+          complete(Plateau(5, 5))
+        } ~
           post {
             complete(StatusCodes.OK)
           } ~
@@ -31,6 +31,6 @@ trait PlateauRoutes extends JsonSupport {
           delete {
             complete(StatusCodes.OK)
           }
-        }
+      }
     }
 }

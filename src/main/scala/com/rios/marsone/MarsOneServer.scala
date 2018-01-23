@@ -14,8 +14,8 @@ import com.rios.marsone.actors.ControlCenterActor
 import com.rios.marsone.routes.{ PlateauRoutes, RoversRoutes }
 
 object MarsOneServer extends App
-  with PlateauRoutes
-  with RoversRoutes {
+    with PlateauRoutes
+    with RoversRoutes {
 
   implicit val system: ActorSystem = ActorSystem("marsOneHttpServer")
   implicit val materializer: ActorMaterializer = ActorMaterializer()

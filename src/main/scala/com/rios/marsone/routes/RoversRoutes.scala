@@ -10,13 +10,13 @@ import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.MethodDirectives.{ delete, get, post }
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 
-import com.rios.marsone.actors.ControlCenterActor.GetRovers
+import com.rios.marsone.actors.ControlCenterActor.{ DeployRover, GetRovers }
 import com.rios.marsone.JsonSupport
 import akka.pattern.ask
 import akka.util.Timeout
 import scala.concurrent.duration._
 
-import com.rios.marsone.actors.Rovers
+import com.rios.marsone.model.{ Rover, Rovers }
 
 trait RoversRoutes extends JsonSupport {
 
@@ -28,24 +28,29 @@ trait RoversRoutes extends JsonSupport {
 
   implicit lazy val timeout: Timeout = Timeout(5.seconds)
 
+  // improve this ask calls
   lazy val roverRoutes: Route =
     pathPrefix("rovers") {
       pathEnd {
         get {
-          val users: Future[Rovers] =
-            (controlCenterActor ? GetRovers).mapTo[Rovers]
+          val maybeRovers = (controlCenterActor ? GetRovers).mapTo[Rovers]
+          complete(maybeRovers)
+        } ~
+          post {
+            entity(as[Rover]) { rover =>
+              val deployed: Future[Any] = controlCenterActor ? DeployRover(rover)
 
-          complete(users)
-        } ~
-        post {
-          complete(StatusCodes.OK)
-        } ~
-        put {
-          complete(StatusCodes.OK)
-        } ~
-        delete {
-          complete(StatusCodes.OK)
-        }
+              onSuccess(deployed) { _ =>
+                complete(StatusCodes.Created)
+              }
+            }
+          } ~
+          put {
+            complete(StatusCodes.OK)
+          } ~
+          delete {
+            complete(StatusCodes.OK)
+          }
       }
     }
 }
