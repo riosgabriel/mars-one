@@ -6,11 +6,14 @@ import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
+import akka.util.Timeout
 import com.rios.marsone.actors.ControlCenterActor
 import com.rios.marsone.routes.{ PlateauRoutes, RoversRoutes }
 
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.io.StdIn
+
+import scala.concurrent.duration._
 
 object MarsOneServer extends App
     with PlateauRoutes
@@ -22,6 +25,8 @@ object MarsOneServer extends App
   implicit val executionContext: ExecutionContext = system.dispatcher
 
   lazy val routes: Route = plateauRoutes ~ roverRoutes
+
+  implicit lazy val timeout: Timeout = Timeout(5 seconds)
 
   val controlCenterActor: ActorRef = system.actorOf(ControlCenterActor.props, "controlCenterActor")
 

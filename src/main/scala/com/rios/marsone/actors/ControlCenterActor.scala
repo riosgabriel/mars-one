@@ -10,12 +10,13 @@ final case class Rovers(rovers: Set[Rover])
 object ControlCenterActor {
 
   case object GetRovers
+  case object GetPlateau
   case class DeployRover(rover: Rover)
   case class SetPlateau(plateau: Plateau)
 
   // improve the name of responses
   case class OkResponse(message: String)
-  case class NokResponse(message: String)
+  case class ErrorResponse(message: String)
 
   def props: Props = Props[ControlCenterActor]
 }
@@ -28,9 +29,15 @@ class ControlCenterActor extends Actor {
   // improve response
   override def receive: Receive = {
     case SetPlateau(newPlateau) =>
-      this.plateau = Some(newPlateau)
       val senderRef = sender()
-      senderRef ! OkResponse(s"Plateau was set")
+
+      if (plateau.isEmpty) {
+        this.plateau = Some(newPlateau)
+        senderRef ! OkResponse(s"Plateau was set")
+
+      } else {
+        senderRef ! ErrorResponse(s"Plateau is already set")
+      }
 
     case DeployRover(rover) =>
       val senderRef = sender()
@@ -39,11 +46,11 @@ class ControlCenterActor extends Actor {
         rovers += rover
         senderRef ! OkResponse("Rover was deployed")
       } else {
-        senderRef ! NokResponse("Could not deploy Rover: Plateau is not set")
+        senderRef ! ErrorResponse("Could not deploy Rover: Plateau is not set")
       }
 
-    case GetRovers =>
-      val senderRef = sender()
-      senderRef ! Rovers(rovers)
+    case GetRovers => sender() ! Rovers(rovers)
+
+    case GetPlateau => sender() ! plateau
   }
 }
