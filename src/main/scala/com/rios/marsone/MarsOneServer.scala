@@ -3,15 +3,14 @@ package com.rios.marsone
 import akka.actor.{ ActorRef, ActorSystem }
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
+import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
-import scala.concurrent.{ ExecutionContext, Future }
-import scala.io.StdIn
-
-import akka.http.scaladsl.server.Directives._
-
 import com.rios.marsone.actors.ControlCenterActor
 import com.rios.marsone.routes.{ PlateauRoutes, RoversRoutes }
+
+import scala.concurrent.{ ExecutionContext, Future }
+import scala.io.StdIn
 
 object MarsOneServer extends App
     with PlateauRoutes

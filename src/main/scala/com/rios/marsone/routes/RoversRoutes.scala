@@ -1,7 +1,5 @@
 package com.rios.marsone.routes
 
-import scala.concurrent.Future
-
 import akka.actor.{ ActorRef, ActorSystem }
 import akka.event.Logging
 import akka.http.scaladsl.model.StatusCodes
@@ -9,14 +7,15 @@ import akka.http.scaladsl.server.Directives.{ pathEnd, pathPrefix, put, _ }
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.MethodDirectives.{ delete, get, post }
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
-
-import com.rios.marsone.actors.ControlCenterActor.{ DeployRover, GetRovers }
-import com.rios.marsone.JsonSupport
 import akka.pattern.ask
 import akka.util.Timeout
-import scala.concurrent.duration._
+import com.rios.marsone.JsonSupport
+import com.rios.marsone.actors.ControlCenterActor.{ DeployRover, GetRovers }
+import com.rios.marsone.actors.Rovers
+import com.rios.marsone.model.Rover
 
-import com.rios.marsone.model.{ Rover, Rovers }
+import scala.concurrent.Future
+import scala.concurrent.duration._
 
 trait RoversRoutes extends JsonSupport {
 
@@ -44,12 +43,6 @@ trait RoversRoutes extends JsonSupport {
                 complete(StatusCodes.Created)
               }
             }
-          } ~
-          put {
-            complete(StatusCodes.OK)
-          } ~
-          delete {
-            complete(StatusCodes.OK)
           }
       }
     }
