@@ -32,7 +32,7 @@ object ControlCenterActor {
 
 class ControlCenterActor extends Actor {
 
-  // maybe improve this changing Set to Map[Int, ActorRef]
+  // maybe improve this changing Set[ActorRef] to Map[Int, ActorRef]
   val rovers = mutable.Set.empty[ActorRef]
   var plateau: Option[Plateau] = None
 
@@ -90,7 +90,7 @@ class ControlCenterActor extends Actor {
           sender() ! ActionNotPerformed("Could not find Rover")
       }
 
-    // fetch all child actor and map to Rovers
+    // fetch all children actor and map to Rovers
     case GetRovers => sender() ! Rovers(rovers.map(_.path.name).toSet)
 
   }
