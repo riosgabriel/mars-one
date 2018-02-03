@@ -10,10 +10,9 @@ import akka.util.Timeout
 import com.rios.marsone.actors.ControlCenterActor
 import com.rios.marsone.routes.{ PlateauRoutes, RoversRoutes }
 
+import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.io.StdIn
-
-import scala.concurrent.duration._
 
 object MarsOneServer extends App
     with PlateauRoutes

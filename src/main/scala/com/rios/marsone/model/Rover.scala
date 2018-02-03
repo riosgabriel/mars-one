@@ -1,6 +1,6 @@
 package com.rios.marsone.model
 
-case class Rover(cardinalDirection: CardinalDirection, x: Int, y: Int) {
+case class Rover(id: Long, cardinalDirection: CardinalDirection, x: Int, y: Int) {
 
   def left: Rover = this.copy(cardinalDirection = cardinalDirection.left)
 
@@ -12,4 +12,7 @@ case class Rover(cardinalDirection: CardinalDirection, x: Int, y: Int) {
     case West => this.copy(x = x - 1)
     case East => this.copy(x = x + 1)
   }
+
+  override def toString: String =
+    s"Rover[id = $id, direction = $cardinalDirection, x = $x, y = $y]"
 }
