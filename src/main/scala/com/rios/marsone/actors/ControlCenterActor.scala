@@ -1,14 +1,19 @@
 package com.rios.marsone.actors
 
 import akka.actor.{ Actor, ActorRef, Props }
-import com.rios.marsone.actors.ControlCenterActor._
-import com.rios.marsone.actors.RoverActor.MoveAction
-import com.rios.marsone.model.{ Plateau, Rover }
+import akka.pattern.ask
+import akka.pattern.pipe
 
+import com.rios.marsone.actors.ControlCenterActor._
+import com.rios.marsone.actors.RoverActor.{ GetState, MoveAction }
+import com.rios.marsone.model.{ Plateau, Rover }
 import scala.collection.mutable
+import scala.concurrent.Future
+
+import akka.util.Timeout
 
 // improvement needed
-final case class Rovers(rovers: Set[String])
+final case class Rovers(rovers: List[Rover])
 
 object ControlCenterActor {
   case object GetPlateau
@@ -39,25 +44,24 @@ class ControlCenterActor extends Actor {
   override def receive: Receive = {
 
     case SetPlateau(newPlateau) =>
-      if(plateau.isDefined) {
+      if (plateau.isDefined) {
         sender() ! ActionNotPerformed("Plateau is already set")
 
       } else {
-          this.plateau = Some(newPlateau)
-          sender() ! ActionPerformed("Plateau was set")
+        this.plateau = Some(newPlateau)
+        sender() ! ActionPerformed("Plateau was set")
       }
 
     case GetPlateau => sender() ! plateau
 
     case DeployRover(rover) =>
-      if(plateau.isDefined) {
-        case Some(_) =>
-          val roverActor = context.actorOf(RoverActor.props(rover), s"roverActor${rover.id}")
-          rovers += roverActor
-          sender() ! ActionPerformed("Rover was deployed")
+      if (plateau.isDefined) {
+        val roverActor = context.actorOf(RoverActor.props(rover), s"roverActor${rover.id}")
+        rovers += roverActor
+        sender() ! ActionPerformed("Rover was deployed")
 
       } else {
-          sender() ! ActionNotPerformed("Could not deploy Rover: Plateau is not set")
+        sender() ! ActionNotPerformed("Could not deploy Rover: Plateau is not set")
       }
 
     case MoveRover(id) =>
@@ -91,8 +95,19 @@ class ControlCenterActor extends Actor {
       }
 
     // fetch all children actor and map to Rovers
-    case GetRovers => sender() ! Rovers(rovers.map(_.path.name).toSet)
+    case GetRovers =>
+      import scala.concurrent.ExecutionContext.Implicits.global
+      import scala.concurrent.duration._
+      implicit lazy val timeout: Timeout = Timeout(5 seconds)
 
+      val senderRef = sender()
+
+      // what a mess, hun?
+      val listOfFutures: List[Future[Rover]] = rovers.map { actor =>
+        (actor ? GetState).mapTo[Rover]
+      }.toList
+
+      Future.sequence(listOfFutures).map(x => Rovers(x)).foreach(x => senderRef ! x)
   }
 
   def findActorByName(id: Long): Option[ActorRef] = rovers.find(_.path.name == s"roverActor$id")
