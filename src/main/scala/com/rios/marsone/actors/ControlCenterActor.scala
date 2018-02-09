@@ -2,12 +2,14 @@ package com.rios.marsone.actors
 
 import akka.actor.{ Actor, ActorLogging, ActorRef, Props }
 import akka.pattern.ask
-import com.rios.marsone.actors.ControlCenterActor._
-import com.rios.marsone.actors.RoverActor.{ GetState, LeftAction, MoveAction, RightAction }
-import com.rios.marsone.model.{ Plateau, Rover }
 
+import com.rios.marsone.actors.ControlCenterActor._
+import com.rios.marsone.actors.RoverActor.{ GetState, MoveForward, TurnLeft, TurnRight }
+import com.rios.marsone.model.{ Plateau, Rover }
 import scala.collection.mutable
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.duration._
+
 import akka.util.Timeout
 
 final case class Rovers(rovers: List[Rover])
@@ -28,10 +30,14 @@ object ControlCenterActor {
   case class Ok(message: String) extends Response
   case class NOK(message: String) extends Response
 
-  def props: Props = Props[ControlCenterActor]
+  def props(implicit executionContext: ExecutionContext): Props = Props(new ControlCenterActor(executionContext))
 }
 
-class ControlCenterActor extends Actor with ActorLogging {
+class ControlCenterActor(val executionContext: ExecutionContext) extends Actor with ActorLogging {
+
+  private implicit val _executionContext: ExecutionContext = executionContext
+
+  implicit lazy val timeout: Timeout = Timeout(5 seconds)
 
   val rovers: mutable.Set[ActorRef] = mutable.Set.empty
   var plateau: Option[Plateau] = None
@@ -65,9 +71,10 @@ class ControlCenterActor extends Actor with ActorLogging {
       findActorByName(id) match {
         case Some(roverActor) =>
           commands.foreach {
-            case "M" => roverActor ! MoveAction
-            case "L" => roverActor ! LeftAction
-            case "R" => roverActor ! RightAction
+            // TODO improve this get call
+            case "M" => roverActor ! MoveForward(plateau.get)
+            case "L" => roverActor ! TurnLeft
+            case "R" => roverActor ! TurnRight
             case x => log.info(s"Wrong command $x")
           }
 
@@ -77,21 +84,14 @@ class ControlCenterActor extends Actor with ActorLogging {
       }
 
     case GetRovers =>
-      // what a mess, hun?
-      import scala.concurrent.ExecutionContext.Implicits.global
-      import scala.concurrent.duration._
-      implicit lazy val timeout: Timeout = Timeout(5 seconds)
-
       val senderRef = sender()
 
-      // TODO this ask call is blocking the actor, bad practice. See context.become
-      val listOfFutures: List[Future[Rover]] = rovers.map { actor =>
-        (actor ? GetState).mapTo[Rover]
-      }.toList
+      val listOfFutures: List[Future[Rover]] = rovers
+        .map(actor => (actor ? GetState).mapTo[Rover]).toList
 
       Future
         .sequence(listOfFutures)
-        .map(rovers => Rovers(rovers))
+        .map(Rovers)
         .foreach(rovers => senderRef ! rovers)
   }
 
