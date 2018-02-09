@@ -14,8 +14,6 @@ import com.rios.marsone.actors.ControlCenterActor._
 import com.rios.marsone.actors.Rovers
 import com.rios.marsone.model.Rover
 
-import scala.concurrent.Future
-
 trait RoversRoutes extends JsonSupport {
 
   implicit def system: ActorSystem
@@ -26,29 +24,47 @@ trait RoversRoutes extends JsonSupport {
 
   def controlCenterActor: ActorRef
 
-  // improve these ask calls
   lazy val roverRoutes: Route =
-    pathPrefix("rovers") {
-      pathEnd {
-        concat(
-          get {
-            val maybeRovers = (controlCenterActor ? GetRovers).mapTo[Rovers]
-            complete(maybeRovers)
-          },
+    concat(
+      pathPrefix("rovers") {
+        pathEnd {
+          concat(
+            get {
+              val maybeRovers = (controlCenterActor ? GetRovers).mapTo[Rovers]
+              complete(maybeRovers)
+            },
+            post {
+              entity(as[Rover]) { rover =>
+                val maybeDeployed = (controlCenterActor ? DeployRover(rover)).mapTo[Response]
+
+                onSuccess(maybeDeployed) {
+                  case Ok(message) =>
+                    complete(StatusCodes.Created -> message)
+
+                  case NOK(message) =>
+                    complete(StatusCodes.PreconditionFailed -> message)
+                }
+              }
+            }
+          )
+        }
+      },
+      pathPrefix("rovers" / IntNumber / "commands") { roverId =>
+        pathEnd {
           post {
-            entity(as[Rover]) { rover =>
-              val roverDeployed: Future[Action] = (controlCenterActor ? DeployRover(rover)).mapTo[Action]
+            entity(as[List[String]]) { commands =>
+              val maybeCommands = (controlCenterActor ? Commands(roverId, commands)).mapTo[Response]
 
-              onSuccess(roverDeployed) {
-                case ActionPerformed(description) =>
-                  complete(StatusCodes.Created -> description)
+              onSuccess(maybeCommands) {
+                case Ok(message) =>
+                  complete(StatusCodes.Accepted -> message)
 
-                case ActionNotPerformed(description) =>
-                  complete(StatusCodes.PreconditionFailed -> description)
+                case NOK(message) =>
+                  complete(StatusCodes.NotFound -> message)
               }
             }
           }
-        )
+        }
       }
-    }
+    )
 }
