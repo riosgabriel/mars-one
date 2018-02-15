@@ -71,7 +71,6 @@ class ControlCenterActor(val executionContext: ExecutionContext) extends Actor w
       findActorByName(id) match {
         case Some(roverActor) =>
           commands.foreach {
-            // TODO improve this get call
             case "M" => roverActor ! MoveForward(plateau.get)
             case "L" => roverActor ! TurnLeft
             case "R" => roverActor ! TurnRight
