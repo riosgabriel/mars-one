@@ -23,7 +23,7 @@ class RoverActor(var rover: Rover) extends Actor with ActorLogging {
     case MoveForward(boundaries) =>
       val newState = rover.move
 
-      if(withinBoundaries(newState, boundaries)) {
+      if (withinBoundaries(newState, boundaries)) {
         rover = rover.move
 
       } else {
