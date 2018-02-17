@@ -6,15 +6,11 @@ import akka.http.scaladsl.model._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.util.Timeout
 import com.rios.marsone.actors.ControlCenterActor
-import com.rios.marsone.actors.ControlCenterActor.SetPlateau
 import com.rios.marsone.model.Plateau
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{ BeforeAndAfterAll, Matchers, WordSpec }
+import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpec}
 
 import scala.concurrent.duration._
-import akka.pattern.ask
-
-import scala.concurrent.Await
 
 class PlateauRoutesSpec extends WordSpec
     with Matchers

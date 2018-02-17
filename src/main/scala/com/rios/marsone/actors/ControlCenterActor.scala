@@ -1,16 +1,17 @@
 package com.rios.marsone.actors
 
 import akka.actor.{ Actor, ActorLogging, ActorRef, Props }
+import akka.io.Tcp.Message
 import akka.pattern.ask
-
+import akka.util.Timeout
 import com.rios.marsone.actors.ControlCenterActor._
 import com.rios.marsone.actors.RoverActor.{ GetState, MoveForward, TurnLeft, TurnRight }
 import com.rios.marsone.model.{ Plateau, Rover }
-import scala.collection.mutable
-import scala.concurrent.{ ExecutionContext, Future }
-import scala.concurrent.duration._
 
-import akka.util.Timeout
+import scala.collection.mutable
+import scala.concurrent.duration._
+import scala.concurrent.{ ExecutionContext, Future }
+import scala.language.postfixOps
 
 final case class Rovers(rovers: List[Rover])
 
@@ -23,12 +24,18 @@ object ControlCenterActor {
   case class SetPlateau(plateau: Plateau)
   case class Commands(roverId: Int, commands: List[String])
 
-  sealed trait Response {
+  sealed trait ControlCenterResponse {
     def message: String
   }
 
-  case class Ok(message: String) extends Response
-  case class NOK(message: String) extends Response
+  case class RoverDeployed(message: String) extends ControlCenterResponse
+  case class DuplicatedRover(message: String) extends ControlCenterResponse
+  case class RoverNotFound(message: String) extends ControlCenterResponse
+  case class ReceivedCommands(message: String) extends ControlCenterResponse
+
+  case class PlateauSet(message: String) extends ControlCenterResponse
+  case class PlateauNotSet(message: String) extends ControlCenterResponse
+  case class PlateauAlreadySet(message: String) extends ControlCenterResponse
 
   def props(implicit executionContext: ExecutionContext): Props = Props(new ControlCenterActor(executionContext))
 }
@@ -46,23 +53,29 @@ class ControlCenterActor(val executionContext: ExecutionContext) extends Actor w
 
     case SetPlateau(newPlateau) =>
       if (plateau.isDefined) {
-        sender() ! NOK("Plateau is already set")
+        sender() ! PlateauAlreadySet("Plateau is already set")
 
       } else {
         plateau = Some(newPlateau)
-        sender() ! Ok("Plateau was set")
+        sender() ! PlateauSet("Plateau was set")
       }
 
     case GetPlateau => sender() ! plateau
 
     case DeployRover(rover) =>
       if (plateau.isDefined) {
-        val roverActor = context.actorOf(RoverActor.props(rover), s"roverActor${rover.id}")
-        rovers += roverActor
-        sender() ! Ok("Rover was deployed")
+        findActorByName(rover.id) match {
+          case Some(_) =>
+            sender() ! DuplicatedRover(s"Could not deploy Rover: Rover with id=${rover.id} has already been deployed")
+
+          case None =>
+            val roverActor = context.actorOf(RoverActor.props(rover), s"roverActor${rover.id}")
+            rovers += roverActor
+            sender() ! RoverDeployed("Rover was deployed")
+        }
 
       } else {
-        sender() ! NOK("Could not deploy Rover: Plateau is not set")
+        sender() ! PlateauNotSet("Could not deploy Rover: Plateau is not set")
       }
 
     case Commands(id, commands) =>
@@ -77,9 +90,9 @@ class ControlCenterActor(val executionContext: ExecutionContext) extends Actor w
             case x => log.info(s"Wrong command $x")
           }
 
-          senderRef ! Ok(s"Commands was sent do rover with id=$id")
+          senderRef ! ReceivedCommands(s"Commands was sent do rover with id=$id")
 
-        case None => senderRef ! NOK(s"Could not find Rover with id=$id")
+        case None => senderRef ! RoverNotFound(s"Could not find Rover with id=$id")
       }
 
     case GetRovers =>

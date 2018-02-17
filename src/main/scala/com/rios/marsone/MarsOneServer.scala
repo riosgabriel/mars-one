@@ -13,7 +13,6 @@ import com.typesafe.config.ConfigFactory
 
 import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
-import scala.io.StdIn
 
 object MarsOneServer extends App
     with PlateauRoutes
@@ -34,4 +33,5 @@ object MarsOneServer extends App
 
   val serverBindingFuture: Future[ServerBinding] =
     Http().bindAndHandle(routes, config.getString("http.interface"), config.getInt("http.port"))
+
 }

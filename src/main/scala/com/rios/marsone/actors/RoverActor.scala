@@ -1,15 +1,17 @@
 package com.rios.marsone.actors
 
 import akka.actor.{ Actor, ActorLogging, Props }
-
 import com.rios.marsone.actors.RoverActor.{ GetState, MoveForward, TurnLeft, TurnRight }
 import com.rios.marsone.model.{ Plateau, Rover }
 
 object RoverActor {
 
   case object GetState
+
   case object TurnLeft
+
   case object TurnRight
+
   case class MoveForward(boundaries: Plateau)
 
   def props(rover: Rover): Props = Props(new RoverActor(rover))
@@ -23,11 +25,11 @@ class RoverActor(var rover: Rover) extends Actor with ActorLogging {
     case MoveForward(boundaries) =>
       val newState = rover.move
 
-      if (withinBoundaries(newState, boundaries)) {
-        rover = rover.move
+      if (outOfBoundaries(newState, boundaries)) {
+        log.error(s"Invalid movement, outside of boundaries")
 
       } else {
-        log.error(s"Invalid movement, outside of boundaries")
+        rover = newState
       }
 
     case TurnLeft => rover = rover.left
@@ -35,6 +37,6 @@ class RoverActor(var rover: Rover) extends Actor with ActorLogging {
     case TurnRight => rover = rover.right
   }
 
-  def withinBoundaries(rover: Rover, boundaries: Plateau): Boolean =
-    rover.x <= boundaries.x || rover.y <= boundaries.y
+  def outOfBoundaries(rover: Rover, boundaries: Plateau): Boolean =
+    rover.x < 0 || rover.x > boundaries.x || rover.y < 0 || rover.y > boundaries.y
 }

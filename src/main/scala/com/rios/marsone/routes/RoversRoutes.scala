@@ -35,14 +35,21 @@ trait RoversRoutes extends JsonSupport {
             },
             post {
               entity(as[Rover]) { rover =>
-                val maybeDeployed = (controlCenterActor ? DeployRover(rover)).mapTo[Response]
+                val maybeDeployed = (controlCenterActor ? DeployRover(rover)).mapTo[ControlCenterResponse]
 
                 onSuccess(maybeDeployed) {
-                  case Ok(message) =>
-                    complete(StatusCodes.Created -> message)
+                  case RoverDeployed(_) =>
+                    complete(StatusCodes.Created)
 
-                  case NOK(message) =>
-                    complete(StatusCodes.PreconditionFailed -> message)
+                  case DuplicatedRover(message) =>
+                    complete(StatusCodes.BadRequest -> ResponseMessage(message))
+
+                  case PlateauNotSet(message) =>
+                    complete(StatusCodes.PreconditionFailed -> ResponseMessage(message))
+
+                  case unexpected =>
+                    log.error(s"Unexpected response=$unexpected")
+                    complete(StatusCodes.InternalServerError)
                 }
               }
             }
@@ -53,14 +60,18 @@ trait RoversRoutes extends JsonSupport {
         pathEnd {
           post {
             entity(as[List[String]]) { commands =>
-              val maybeCommands = (controlCenterActor ? Commands(roverId, commands)).mapTo[Response]
+              val maybeCommands = (controlCenterActor ? Commands(roverId, commands)).mapTo[ControlCenterResponse]
 
               onSuccess(maybeCommands) {
-                case Ok(message) =>
-                  complete(StatusCodes.Accepted -> message)
+                case ReceivedCommands(_) =>
+                  complete(StatusCodes.Accepted)
 
-                case NOK(message) =>
-                  complete(StatusCodes.NotFound -> message)
+                case RoverNotFound(_) =>
+                  complete(StatusCodes.NotFound)
+
+                case unexpected =>
+                  log.error(s"Unexpected response=$unexpected")
+                  complete(StatusCodes.InternalServerError)
               }
             }
           }
