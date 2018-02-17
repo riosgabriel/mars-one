@@ -2,6 +2,7 @@ lazy val akkaHttpVersion = "10.0.11"
 lazy val akkaVersion    = "2.5.8"
 
 lazy val root = (project in file(".")).
+  enablePlugins(JavaServerAppPackaging).
   settings(
     inThisBuild(List(
       organization    := "com.rios",
@@ -17,4 +18,5 @@ lazy val root = (project in file(".")).
       "com.typesafe.akka" %% "akka-testkit"         % akkaVersion     % Test,
       "org.scalatest"     %% "scalatest"            % "3.0.1"         % Test
     )
+
   )

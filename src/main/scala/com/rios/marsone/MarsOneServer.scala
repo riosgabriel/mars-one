@@ -33,16 +33,5 @@ object MarsOneServer extends App
   val controlCenterActor: ActorRef = system.actorOf(ControlCenterActor.props, "controlCenterActor")
 
   val serverBindingFuture: Future[ServerBinding] =
-    Http().bindAndHandle(routes, config.getString("interface"), config.getInt("http.port"))
-
-  println(s"Server online at http://localhost:8080/\nPress RETURN to stop...")
-
-  StdIn.readLine()
-
-  serverBindingFuture
-    .flatMap(_.unbind())
-    .onComplete { done =>
-      done.failed.map(ex => println(s"Failed unbinding ex=$ex"))
-      system.terminate()
-    }
+    Http().bindAndHandle(routes, config.getString("http.interface"), config.getInt("http.port"))
 }

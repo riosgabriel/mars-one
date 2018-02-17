@@ -1,18 +1,20 @@
 package com.rios.marsone.routes
 
-import akka.actor.{ActorRef, Props}
+import akka.actor.ActorRef
 import akka.http.scaladsl.marshalling.Marshal
-import akka.http.scaladsl.model.MediaTypes.`application/json`
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import akka.testkit.TestProbe
 import akka.util.Timeout
 import com.rios.marsone.actors.ControlCenterActor
+import com.rios.marsone.actors.ControlCenterActor.SetPlateau
 import com.rios.marsone.model.Plateau
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpec}
+import org.scalatest.{ BeforeAndAfterAll, Matchers, WordSpec }
 
 import scala.concurrent.duration._
+import akka.pattern.ask
+
+import scala.concurrent.Await
 
 class PlateauRoutesSpec extends WordSpec
     with Matchers
@@ -23,9 +25,7 @@ class PlateauRoutesSpec extends WordSpec
 
   override implicit val timeout: Timeout = 5 seconds
 
-  val probe = TestProbe()
-
-  override def controlCenterActor: ActorRef = system.actorOf(Props(classOf[ControlCenterActor], probe.ref))
+  override def controlCenterActor: ActorRef = system.actorOf(ControlCenterActor.props)
 
   lazy val routes = plateauRoutes
 
@@ -34,9 +34,7 @@ class PlateauRoutesSpec extends WordSpec
       val request = HttpRequest(uri = "/plateau")
 
       request ~> routes ~> check {
-        status should ===(StatusCodes.OK)
-        //        contentType should ===(ContentTypes.`application/json`)
-        entityAs[String] shouldEqual ""
+        status should ===(StatusCodes.NotFound)
       }
     }
 
@@ -45,7 +43,6 @@ class PlateauRoutesSpec extends WordSpec
 
       val plateauEntity = Marshal(plateau).to[MessageEntity].futureValue
 
-      // using the RequestBuilding DSL:
       val request = Post("/plateau").withEntity(plateauEntity)
 
       request ~> routes ~> check {

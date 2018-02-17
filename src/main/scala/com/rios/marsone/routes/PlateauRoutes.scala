@@ -23,14 +23,17 @@ trait PlateauRoutes extends JsonSupport {
 
   def controlCenterActor: ActorRef
 
-  // Improve the ask (?) calls to bang (!)
   lazy val plateauRoutes: Route =
     pathPrefix("plateau") {
       pathEnd {
         concat(
           get {
             val maybePlateau = (controlCenterActor ? GetPlateau).mapTo[Option[Plateau]]
-            complete(maybePlateau)
+
+            onSuccess(maybePlateau) {
+              case Some(plateau) => complete(StatusCodes.OK -> plateau)
+              case None => complete(StatusCodes.NotFound)
+            }
           },
           post {
             entity(as[Plateau]) { plateau =>
