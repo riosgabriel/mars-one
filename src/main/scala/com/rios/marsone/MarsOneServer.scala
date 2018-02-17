@@ -9,6 +9,7 @@ import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import com.rios.marsone.actors.ControlCenterActor
 import com.rios.marsone.routes.{ PlateauRoutes, RoversRoutes }
+import com.typesafe.config.ConfigFactory
 
 import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
@@ -21,6 +22,8 @@ object MarsOneServer extends App
   implicit val system: ActorSystem = ActorSystem("marsOneHttpServer")
   implicit val materializer: ActorMaterializer = ActorMaterializer()
 
+  val config = ConfigFactory.load()
+
   implicit val executionContext: ExecutionContext = system.dispatcher
 
   lazy val routes: Route = plateauRoutes ~ roverRoutes
@@ -30,7 +33,7 @@ object MarsOneServer extends App
   val controlCenterActor: ActorRef = system.actorOf(ControlCenterActor.props, "controlCenterActor")
 
   val serverBindingFuture: Future[ServerBinding] =
-    Http().bindAndHandle(routes, "localhost", 8080)
+    Http().bindAndHandle(routes, config.getString("interface"), config.getInt("http.port"))
 
   println(s"Server online at http://localhost:8080/\nPress RETURN to stop...")
 
