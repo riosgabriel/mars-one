@@ -1,6 +1,6 @@
 package com.rios.marsone.model
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.{ FlatSpec, Matchers }
 
 class RoverSpec extends FlatSpec with Matchers {
 

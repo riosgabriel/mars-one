@@ -1,7 +1,6 @@
 package com.rios.marsone.actors
 
 import akka.actor.{ Actor, ActorLogging, ActorRef, Props }
-import akka.io.Tcp.Message
 import akka.pattern.ask
 import akka.util.Timeout
 import com.rios.marsone.actors.ControlCenterActor._
