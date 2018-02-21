@@ -17,6 +17,9 @@ object MarsOneServer extends App with Routes {
   implicit val system: ActorSystem = ActorSystem("marsOneHttpServer")
   implicit val materializer: ActorMaterializer = ActorMaterializer()
 
+  val extension = MarsOneExtension(system)
+  val settings: MarsOneSettings = extension.marsOneSettings
+
   val config = ConfigFactory.load()
 
   implicit val executionContext: ExecutionContext = system.dispatcher
@@ -26,6 +29,6 @@ object MarsOneServer extends App with Routes {
   val controlCenterActor: ActorRef = system.actorOf(ControlCenterActor.props, "controlCenterActor")
 
   val serverBindingFuture: Future[ServerBinding] =
-    Http().bindAndHandle(routes, config.getString("http.interface"), config.getInt("http.port"))
+    Http().bindAndHandle(routes, settings.http.interface, settings.http.port)
 
 }
