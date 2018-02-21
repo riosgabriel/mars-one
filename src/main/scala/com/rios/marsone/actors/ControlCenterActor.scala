@@ -50,6 +50,8 @@ class ControlCenterActor(val executionContext: ExecutionContext) extends Actor w
 
   override def receive: Receive = {
 
+    case GetPlateau => sender() ! plateau
+
     case SetPlateau(newPlateau) =>
       if (plateau.isDefined) {
         sender() ! PlateauAlreadySet("Plateau is already set")
@@ -58,8 +60,6 @@ class ControlCenterActor(val executionContext: ExecutionContext) extends Actor w
         plateau = Some(newPlateau)
         sender() ! PlateauSet("Plateau was set")
       }
-
-    case GetPlateau => sender() ! plateau
 
     case DeployRover(rover) =>
       if (plateau.isDefined) {

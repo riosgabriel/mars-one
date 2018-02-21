@@ -9,8 +9,11 @@ import org.scalatest.{ BeforeAndAfterAll, Matchers, WordSpecLike }
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-class RoverActorSpec extends TestKit(ActorSystem("MySpec")) with ImplicitSender
-    with WordSpecLike with Matchers with BeforeAndAfterAll {
+class RoverActorSpec extends TestKit(ActorSystem("RoverActorSpec"))
+    with ImplicitSender
+    with WordSpecLike
+    with Matchers
+    with BeforeAndAfterAll {
 
   override def afterAll {
     TestKit.shutdownActorSystem(system)
