@@ -36,8 +36,8 @@ A forma de entrada e saída dos dados fica à sua escolha.
 
 ```json
 {
-	"x": 1,
-	"y": 2
+    "x": 1,
+    "y": 2
 }
 ```
 
@@ -59,7 +59,7 @@ Content:
 }
 ```
 
-Sample Call:
+##### Sample Call:
 ```
 curl -H "Content-Type: application/json" -X POST -d '{"x": 10, "y": 10}' http://localhost:9000/api/v1/plateau
 ```
