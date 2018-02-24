@@ -1,6 +1,6 @@
 package com.rios.marsone.actors
 
-import akka.actor.{ Actor, ActorLogging, ActorRef, Props }
+import akka.actor.{ Actor, ActorLogging, ActorRef, PoisonPill, Props }
 import akka.pattern.ask
 import akka.util.Timeout
 import com.rios.marsone.actors.ControlCenterActor._
@@ -12,7 +12,7 @@ import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.language.postfixOps
 
-final case class Rovers(rovers: List[Rover])
+final case class Rovers(rovers: Set[Rover])
 
 object ControlCenterActor {
 
@@ -21,7 +21,7 @@ object ControlCenterActor {
 
   case class DeployRover(rover: Rover)
   case class SetPlateau(plateau: Plateau)
-  case class Commands(roverId: Int, commands: List[String])
+  case class Commands(roverId: Long, commands: List[String])
 
   sealed trait ControlCenterResponse {
     def message: String
@@ -97,8 +97,8 @@ class ControlCenterActor(val executionContext: ExecutionContext) extends Actor w
     case GetRovers =>
       val senderRef = sender()
 
-      val listOfFutures: List[Future[Rover]] = rovers
-        .map(actor => (actor ? GetState).mapTo[Rover]).toList
+      val listOfFutures: Set[Future[Rover]] = rovers
+        .map(actor => (actor ? GetState).mapTo[Rover]).toSet
 
       Future
         .sequence(listOfFutures)
