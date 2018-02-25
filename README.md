@@ -117,7 +117,7 @@ Content: { "message": "Could not deploy Rover: Plateau is not set" }
 
 ##### **Sample Call:**
 ```
-curl -H "Content-Type: application/json" -X POST -d '{"x": 10, "y": 10}' http://localhost:9000/api/v1/plateau
+curl -H "Content-Type: application/json" -X POST -d '{ "id": 1, "cardinalDirection": { "type": "South" }, "x": 1, "y": 1 }' http://localhost:9000/api/v1/roversg
 ```
 ##### **METHOD: GET**
 ```
@@ -158,7 +158,7 @@ Content: { "message": "Could not deploy Rover: Plateau is not set" }
 
 ##### **Sample Call:**
 ```
-curl -H "Content-Type: application/json" -X POST -d '{"x": 10, "y": 10}' http://localhost:9000/api/v1/plateau
+curl -H "Content-Type: application/json" -X GET http://localhost:9000/api/v1/rovers
 ```
 
 #### **ROVERS COMMANDS**
@@ -188,5 +188,5 @@ Content: None
 
 ##### **Sample Call:**
 ```
-curl -H "Content-Type: application/json" -X POST -d '{"x": 10, "y": 10}' http://localhost:9000/api/v1/plateau
+curl -H "Content-Type: application/json" -X POST -d '["M", "R", "M", "L"]' http://localhost:9000//api/v1/rovers/1/commands
 ```
