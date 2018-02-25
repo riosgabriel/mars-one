@@ -22,44 +22,171 @@ A forma de entrada e saída dos dados fica à sua escolha.
 
 # API
 
-#### URL
-
+### **PLATEAU**
+##### **METHOD: POST**
 ```
 /api/v1/plateau
 ```
 
-#### Method:
-
-##### POST
-
-##### Data Params
+##### **Body**
 
 ```json
 {
-    "x": 1,
-    "y": 2
+    "x": 10,
+    "y": 10
 }
 ```
 
-##### Success Response:
+##### **Success Response:**
 
 ```
 Code: 201 CREATED
 Content: None
 ```
 
-##### Error Response:
+##### **Error Response:**
 ```
 Code: 400 BAD REQUEST 
-Content:
+Content: { "message": "Plateau is already set" }
 ``` 
+
+##### **Sample Call:**
+```
+curl -H "Content-Type: application/json" -X POST -d '{"x": 10, "y": 10}' http://localhost:9000/api/v1/plateau
+```
+##### **METHOD: GET**
+```
+/api/v1/plateau
+```
+
+
+##### **Success Response:**
+
+```
+Code: 200 CREATED
+Content: { "x": 10, "y": 10 }
+```
+
+##### **Error Response:**
+```
+Code: 404 NOT FOUND 
+Content: None
+``` 
+
+##### **Sample Call:**
+```
+curl -H "Content-Type: application/json" -X GET http://localhost:9000/api/v1/plateau
+```
+
+#### **ROVERS**
+##### **METHOD: POST**
+```
+/api/v1/rovers
+```
+
+##### **Body**
+
 ```json
 {
-    "message": "Plateau is already set"
+  "id": 1,
+  "cardinalDirection": {
+      "type": "South"
+  },
+  "x": 1,
+  "y": 1
 }
 ```
 
-##### Sample Call:
+##### **Success Response:**
+
+```
+Code: 201 CREATED
+Content: None
+```
+
+##### **Errors Response:**
+```
+Code: 400 BAD REQUEST 
+Content: { "message": "Could not deploy Rover: Rover with id=1 has already been deployed" }
+```
+
+```
+Code: 412 PRECONDITION FAILED 
+Content: { "message": "Could not deploy Rover: Plateau is not set" }
+```  
+
+##### **Sample Call:**
+```
+curl -H "Content-Type: application/json" -X POST -d '{"x": 10, "y": 10}' http://localhost:9000/api/v1/plateau
+```
+##### **METHOD: GET**
+```
+/api/v1/rovers
+```
+
+##### **Success Response:**
+
+```
+Code: 200 CREATED
+Content: {
+             "rovers": [
+                 {
+                     "id": 1,
+                     "cardinalDirection": {
+                         "type": "South"
+                     },
+                     "x": 1,
+                     "y": 1
+                 },
+                 {
+                     "id": 2,
+                     "cardinalDirection": {
+                         "type": "South"
+                     },
+                     "x": 1,
+                     "y": 1
+                 }
+             ]
+         }
+```
+
+##### **Errors Response:**
+```
+Code: 412 PRECONDITION FAILED 
+Content: { "message": "Could not deploy Rover: Plateau is not set" }
+```  
+
+##### **Sample Call:**
+```
+curl -H "Content-Type: application/json" -X POST -d '{"x": 10, "y": 10}' http://localhost:9000/api/v1/plateau
+```
+
+#### **ROVERS COMMANDS**
+##### **METHOD: POST**
+```
+/api/v1/rovers/{id}/commands
+```
+
+##### **Body**
+
+```json
+["M", "R", "M", "L"]
+```
+
+##### **Success Response:**
+
+```
+Code: 202 ACCEPTED
+Content: None
+```
+
+##### **Errors Response:**
+```
+Code: 404 NOT FOUND
+Content: None
+```
+
+##### **Sample Call:**
 ```
 curl -H "Content-Type: application/json" -X POST -d '{"x": 10, "y": 10}' http://localhost:9000/api/v1/plateau
 ```
