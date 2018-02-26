@@ -1,10 +1,10 @@
 package com.rios.marsone.actors
 
 import akka.actor.ActorSystem
-import akka.testkit.{ ImplicitSender, TestKit }
+import akka.testkit.{ImplicitSender, TestKit}
 import com.rios.marsone.actors.ControlCenterActor._
-import com.rios.marsone.model.{ North, Plateau, Rover, West }
-import org.scalatest.{ BeforeAndAfterAll, Matchers, WordSpecLike }
+import com.rios.marsone.model.{North, Plateau, Rover, West}
+import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

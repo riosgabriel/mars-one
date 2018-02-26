@@ -1,6 +1,6 @@
 package com.rios.marsone
 
-import akka.actor.{ ExtendedActorSystem, Extension, ExtensionId, ExtensionIdProvider }
+import akka.actor.{ExtendedActorSystem, Extension, ExtensionId, ExtensionIdProvider}
 import com.typesafe.config.Config
 
 class MarsOneExtension(config: Config) extends Extension {

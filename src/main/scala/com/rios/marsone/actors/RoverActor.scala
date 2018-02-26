@@ -1,8 +1,8 @@
 package com.rios.marsone.actors
 
-import akka.actor.{ Actor, ActorLogging, Props }
-import com.rios.marsone.actors.RoverActor.{ GetState, MoveForward, TurnLeft, TurnRight }
-import com.rios.marsone.model.{ Plateau, Rover }
+import akka.actor.{Actor, ActorLogging, Props}
+import com.rios.marsone.actors.RoverActor.{GetState, MoveForward, TurnLeft, TurnRight}
+import com.rios.marsone.model.{Plateau, Rover}
 
 object RoverActor {
 

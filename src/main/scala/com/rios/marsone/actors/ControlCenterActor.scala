@@ -1,15 +1,15 @@
 package com.rios.marsone.actors
 
-import akka.actor.{ Actor, ActorLogging, ActorRef, PoisonPill, Props }
+import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import akka.pattern.ask
 import akka.util.Timeout
 import com.rios.marsone.actors.ControlCenterActor._
-import com.rios.marsone.actors.RoverActor.{ GetState, MoveForward, TurnLeft, TurnRight }
-import com.rios.marsone.model.{ Plateau, Rover }
+import com.rios.marsone.actors.RoverActor.{GetState, MoveForward, TurnLeft, TurnRight}
+import com.rios.marsone.model.{Plateau, Rover}
 
 import scala.collection.mutable
 import scala.concurrent.duration._
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
 
 final case class Rovers(rovers: Set[Rover])
@@ -18,6 +18,7 @@ object ControlCenterActor {
 
   case object GetPlateau
   case object GetRovers
+  case object AbortMission
 
   case class DeployRover(rover: Rover)
   case class SetPlateau(plateau: Plateau)
@@ -35,6 +36,7 @@ object ControlCenterActor {
   case class PlateauSet(message: String) extends ControlCenterResponse
   case class PlateauNotSet(message: String) extends ControlCenterResponse
   case class PlateauAlreadySet(message: String) extends ControlCenterResponse
+  case class MissionAborted(message: String) extends ControlCenterResponse
 
   def props(implicit executionContext: ExecutionContext): Props = Props(new ControlCenterActor(executionContext))
 }
@@ -46,6 +48,7 @@ class ControlCenterActor(val executionContext: ExecutionContext) extends Actor w
   implicit lazy val timeout: Timeout = Timeout(5 seconds)
 
   val rovers: mutable.Set[ActorRef] = mutable.Set.empty
+
   var plateau: Option[Plateau] = None
 
   override def receive: Receive = {
@@ -104,7 +107,20 @@ class ControlCenterActor(val executionContext: ExecutionContext) extends Actor w
         .sequence(listOfFutures)
         .map(Rovers)
         .foreach(rovers => senderRef ! rovers)
+
+    case AbortMission =>
+      val senderRef = sender()
+
+      abortMission()
+
+      senderRef ! MissionAborted(s"Mission aborted")
   }
 
   def findActorByName(id: Long): Option[ActorRef] = rovers.find(_.path.name == s"roverActor$id")
+
+  def abortMission(): Unit = {
+    rovers.foreach(roverActor => roverActor ! PoisonPill)
+    rovers.clear()
+    plateau = None
+  }
 }

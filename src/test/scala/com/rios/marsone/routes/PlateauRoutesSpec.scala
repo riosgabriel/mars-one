@@ -8,7 +8,7 @@ import akka.util.Timeout
 import com.rios.marsone.actors.ControlCenterActor
 import com.rios.marsone.model.Plateau
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{ BeforeAndAfterAll, Matchers, WordSpec }
+import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpec}
 
 import scala.concurrent.duration._
 
