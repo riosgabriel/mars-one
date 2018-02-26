@@ -1,10 +1,10 @@
 package com.rios.marsone.actors
 
 import akka.actor.ActorSystem
-import akka.testkit.{ImplicitSender, TestActorRef, TestKit}
-import com.rios.marsone.actors.RoverActor.{GetState, MoveForward, TurnLeft, TurnRight}
-import com.rios.marsone.model.{North, Plateau, Rover}
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import akka.testkit.{ ImplicitSender, TestActorRef, TestKit }
+import com.rios.marsone.actors.RoverActor.{ GetState, MoveForward, TurnLeft, TurnRight }
+import com.rios.marsone.model.{ North, Plateau, Rover }
+import org.scalatest.{ BeforeAndAfterAll, Matchers, WordSpecLike }
 
 import scala.concurrent.duration._
 

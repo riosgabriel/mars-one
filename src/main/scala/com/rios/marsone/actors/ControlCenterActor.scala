@@ -1,15 +1,15 @@
 package com.rios.marsone.actors
 
-import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
+import akka.actor.{ Actor, ActorLogging, ActorRef, PoisonPill, Props }
 import akka.pattern.ask
 import akka.util.Timeout
 import com.rios.marsone.actors.ControlCenterActor._
-import com.rios.marsone.actors.RoverActor.{GetState, MoveForward, TurnLeft, TurnRight}
-import com.rios.marsone.model.{Plateau, Rover}
+import com.rios.marsone.actors.RoverActor.{ GetState, MoveForward, TurnLeft, TurnRight }
+import com.rios.marsone.model.{ Plateau, Rover }
 
 import scala.collection.mutable
 import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 import scala.language.postfixOps
 
 final case class Rovers(rovers: Set[Rover])

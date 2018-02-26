@@ -1,16 +1,16 @@
 package com.rios.marsone.routes
 
-import akka.actor.{ActorRef, ActorSystem}
+import akka.actor.{ ActorRef, ActorSystem }
 import akka.event.Logging
 import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.Directives.{pathEnd, pathPrefix, _}
+import akka.http.scaladsl.server.Directives.{ pathEnd, pathPrefix, _ }
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.MethodDirectives.get
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.pattern.ask
 import akka.util.Timeout
 import com.rios.marsone.JsonSupport
-import com.rios.marsone.actors.ControlCenterActor.{AbortMission, ControlCenterResponse, MissionAborted}
+import com.rios.marsone.actors.ControlCenterActor.{ AbortMission, ControlCenterResponse, MissionAborted }
 
 trait MissionRoutes extends JsonSupport {
 

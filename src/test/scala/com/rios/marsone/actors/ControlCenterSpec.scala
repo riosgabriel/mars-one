@@ -1,10 +1,10 @@
 package com.rios.marsone.actors
 
 import akka.actor.ActorSystem
-import akka.testkit.{ImplicitSender, TestKit}
+import akka.testkit.{ ImplicitSender, TestKit }
 import com.rios.marsone.actors.ControlCenterActor._
-import com.rios.marsone.model.{North, Plateau, Rover, West}
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import com.rios.marsone.model.{ North, Plateau, Rover, West }
+import org.scalatest.{ BeforeAndAfterAll, Matchers, WordSpecLike }
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -164,6 +164,35 @@ class ControlCenterSpec extends TestKit(ActorSystem("ControlCenterSpec"))
       controlCenterActor ! GetRovers
 
       expectMsg(result)
+    }
+
+    "abort mission" in {
+      val plateau = Plateau(5, 5)
+      val rover = Rover(1, North, 1, 1)
+
+      val expectedResult = Rovers(Set.empty)
+
+      val controlCenterActor = system.actorOf(ControlCenterActor.props)
+
+      controlCenterActor ! SetPlateau(plateau)
+
+      expectMsg(PlateauSet("Plateau was set"))
+
+      controlCenterActor ! DeployRover(rover)
+
+      expectMsg(RoverDeployed("Rover was deployed"))
+
+      controlCenterActor ! AbortMission
+
+      expectMsg(MissionAborted(s"Mission aborted"))
+
+      controlCenterActor ! GetRovers
+
+      expectMsg(expectedResult)
+
+      controlCenterActor ! GetPlateau
+
+      expectMsg(None)
     }
   }
 }
