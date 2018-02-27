@@ -40,8 +40,8 @@ trait PlateauRoutes extends JsonSupport {
               val maybeSet = controlCenterActor ? SetPlateau(plateau)
 
               onSuccess(maybeSet) {
-                case PlateauSet(_) =>
-                  complete(StatusCodes.Created)
+                case PlateauSet(message) =>
+                  complete(StatusCodes.Created -> ResponseMessage(message))
 
                 case PlateauAlreadySet(message) =>
                   complete(StatusCodes.BadRequest -> ResponseMessage(message))

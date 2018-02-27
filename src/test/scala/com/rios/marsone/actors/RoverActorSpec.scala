@@ -1,12 +1,11 @@
 package com.rios.marsone.actors
 
 import akka.actor.ActorSystem
-import akka.testkit.{ ImplicitSender, TestActorRef, TestKit, TestProbe }
+import akka.testkit.{ ImplicitSender, TestActorRef, TestKit }
 import com.rios.marsone.actors.RoverActor.{ GetState, MoveForward, TurnLeft, TurnRight }
 import com.rios.marsone.model.{ North, Plateau, Rover }
 import org.scalatest.{ BeforeAndAfterAll, Matchers, WordSpecLike }
 
-import scala.concurrent.Await
 import scala.concurrent.duration._
 
 class RoverActorSpec extends TestKit(ActorSystem("RoverActorSpec"))
