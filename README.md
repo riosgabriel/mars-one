@@ -188,5 +188,29 @@ Content: None
 
 ##### **Sample Call:**
 ```
-curl -H "Content-Type: application/json" -X POST -d '["M", "R", "M", "L"]' http://localhost:9000//api/v1/rovers/1/commands
+curl -H "Content-Type: application/json" -X POST -d '["M", "R", "M", "L"]' http://localhost:9000/api/v1/rovers/1/commands
+```
+
+#### **MISSION ABORT**
+##### **METHOD: DELETE**
+```
+/api/v1/mission
+```
+
+##### **Success Response:**
+
+```
+Code: 200 ACCEPTED
+Content: { "message": "Mission aborted" }
+```
+
+##### **Errors Response:**
+```
+Code: 500 INTERNAL SERVER ERROR
+Content: None
+```
+
+##### **Sample Call:**
+```
+curl -H "Content-Type: application/json" -X DELET http://localhost:9000/api/v1/mission
 ```
